@@ -1,5 +1,5 @@
 export const ExpressKitConfig = {
-  routePrefix: "/api/v1",
-  defaultRouteMessage: "⚡ ExpressKit Notification Microservice is alive",
+  routePrefix: "/api",
+  defaultRouteMessage: "⚡ ExpressKit is alive",
   loadRoutesFrom: "src/routes",
 };
