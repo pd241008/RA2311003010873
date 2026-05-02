@@ -15,13 +15,13 @@ export const fetchNotifications = async (): Promise<NotificationItem[]> => {
     const token = process.env.ACCESS_TOKEN;
     if (!token) throw new Error("ACCESS_TOKEN is not defined in .env");
 
-    Log("Backend", "INFO", "api-client", "Fetching notifications from evaluation API");
+    Log("Backend", "INFO", "api", "fetching notifs from eval server");
     const response = await axios.get(`${BASE_URL}/notifications`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     return response.data;
   } catch (error: any) {
-    Log("Backend", "ERROR", "api-client", `Failed to fetch notifications: ${error.message}`);
+    Log("Backend", "ERROR", "api", `error fetching notifs: ${error.message}`);
     throw error;
   }
 };

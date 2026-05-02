@@ -6,7 +6,7 @@ interface PrioritizedNotification extends NotificationItem {
 }
 
 export const getPriorityInbox = async (topN: number = 10): Promise<PrioritizedNotification[]> => {
-  Log("Backend", "INFO", "priority-service", "Computing priority inbox");
+  Log("Backend", "INFO", "priority", "calculating priority inbox items");
   
   const notifications = await fetchNotifications();
 
@@ -25,9 +25,8 @@ export const getPriorityInbox = async (topN: number = 10): Promise<PrioritizedNo
     return { ...notif, priorityScore };
   });
 
+  // sort highest first
   prioritized.sort((a, b) => b.priorityScore - a.priorityScore);
 
-  Log("Backend", "INFO", "priority-service", `Successfully computed top ${topN} prioritized notifications`);
-  
   return prioritized.slice(0, topN);
 };

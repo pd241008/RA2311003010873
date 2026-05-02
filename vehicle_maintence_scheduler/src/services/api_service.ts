@@ -20,13 +20,13 @@ export const fetchDepots = async (): Promise<Depot[]> => {
     const token = process.env.ACCESS_TOKEN;
     if (!token) throw new Error("ACCESS_TOKEN is not defined in .env");
 
-    Log("Backend", "INFO", "api-client", "Initiating fetching sequence for depots from external API");
+    Log("Backend", "INFO", "api", "fetching depots from api");
     const response = await axios.get(`${BASE_URL}/depots`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     return response.data;
   } catch (error: any) {
-    Log("Backend", "ERROR", "api-client", `Failed to fetch depots: ${error.message}`);
+    Log("Backend", "ERROR", "api", `failed to get depots: ${error.message}`);
     throw error;
   }
 };
@@ -36,13 +36,13 @@ export const fetchVehicles = async (): Promise<Vehicle[]> => {
     const token = process.env.ACCESS_TOKEN;
     if (!token) throw new Error("ACCESS_TOKEN is not defined in .env");
 
-    Log("Backend", "INFO", "api-client", "Initiating fetching sequence for vehicles from external API");
+    Log("Backend", "INFO", "api", "fetching vehicles...");
     const response = await axios.get(`${BASE_URL}/vehicles`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     return response.data;
   } catch (error: any) {
-    Log("Backend", "ERROR", "api-client", `Failed to fetch vehicles: ${error.message}`);
+    Log("Backend", "ERROR", "api", `failed to get vehicles: ${error.message}`);
     throw error;
   }
 };

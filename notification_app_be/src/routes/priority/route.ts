@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { getInboxController } from "../../controllers/priority_controller";
+import { getInbox } from "../../controllers/priority_controller";
 
 const router = Router();
 
-router.get("/", getInboxController);
+router.get("/", getInbox);
 
 export default router;

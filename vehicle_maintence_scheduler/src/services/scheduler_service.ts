@@ -3,36 +3,34 @@ import { fetchDepots, fetchVehicles, Depot, Vehicle } from "./api_service";
 
 export interface ScheduleResult {
   depotId: string;
-  totalMechanicHoursUtilized: number;
-  maxImpactScoreAchieved: number;
-  scheduledTaskIds: string[];
+  hoursUsed: number;
+  score: number;
+  tasks: string[];
 }
 
 export const generateSchedule = async (): Promise<ScheduleResult[]> => {
-  Log("Backend", "INFO", "scheduler-service", "Initiating schedule generation pipeline");
+  Log("Backend", "INFO", "scheduler", "starting schedule generation");
   
   const [depots, vehicles] = await Promise.all([
     fetchDepots(),
     fetchVehicles()
   ]);
 
-  Log("Backend", "INFO", "scheduler-service", `Fetched ${depots.length} depots and ${vehicles.length} vehicles`);
+  Log("Backend", "INFO", "scheduler", `got ${depots.length} depots, ${vehicles.length} vehicles`);
 
   const results: ScheduleResult[] = [];
 
   for (const depot of depots) {
-    Log("Backend", "DEBUG", "scheduler-service", `Processing DP Knapsack for Depot ${depot.id} with budget ${depot.MechanicHours}`);
-    
-    const depotVehicles = vehicles.filter(v => v.depotId === depot.id || v.depotId === undefined);
-    Log("Backend", "INFO", "scheduler-service", `Filtered ${depotVehicles.length} relevant vehicles for Depot ${depot.id}`);
+    // grab vehicles for this specific depot (or unassigned ones)
+    const validVehicles = vehicles.filter(v => v.depotId === depot.id || !v.depotId);
 
     const W = depot.MechanicHours;
-    const n = depotVehicles.length;
+    const n = validVehicles.length;
     
     const dp: number[][] = Array.from({ length: n + 1 }, () => Array(W + 1).fill(0));
     
     for (let i = 1; i <= n; i++) {
-      const v = depotVehicles[i - 1];
+      const v = validVehicles[i - 1];
       const weight = v.duration;
       const value = v.impactScore;
       
@@ -46,29 +44,28 @@ export const generateSchedule = async (): Promise<ScheduleResult[]> => {
     }
     
     let w = W;
-    const scheduledTaskIds: string[] = [];
-    let hoursUtilized = 0;
+    const tasks: string[] = [];
+    let hoursUsed = 0;
     
     for (let i = n; i > 0 && dp[i][w] > 0; i--) {
       if (dp[i][w] !== dp[i - 1][w]) {
-        const v = depotVehicles[i - 1];
-        scheduledTaskIds.push(v.TaskID);
-        hoursUtilized += v.duration;
+        const v = validVehicles[i - 1];
+        tasks.push(v.TaskID);
+        hoursUsed += v.duration;
         w -= v.duration;
       }
     }
     
-    const maxImpactScoreAchieved = dp[n][W];
-    Log("Backend", "INFO", "scheduler-service", `Depot ${depot.id} scheduling complete: Score=${maxImpactScoreAchieved}, Hours=${hoursUtilized}`);
+    const score = dp[n][W];
+    Log("Backend", "INFO", "scheduler", `depot ${depot.id} done: score=${score}, hours=${hoursUsed}`);
     
     results.push({
       depotId: depot.id,
-      totalMechanicHoursUtilized: hoursUtilized,
-      maxImpactScoreAchieved,
-      scheduledTaskIds: scheduledTaskIds.reverse()
+      hoursUsed,
+      score,
+      tasks: tasks.reverse()
     });
   }
 
-  Log("Backend", "INFO", "scheduler-service", "Schedule generation pipeline completed successfully");
   return results;
 };
