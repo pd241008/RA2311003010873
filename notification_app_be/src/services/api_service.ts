@@ -17,9 +17,10 @@ export const fetchNotifications = async (): Promise<NotificationItem[]> => {
 
     Log("Backend", "INFO", "api", "fetching notifs from eval server");
     const response = await axios.get(`${BASE_URL}/notifications`, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
+      timeout: 5000
     });
-    return response.data;
+    return response.data.notifications;
   } catch (error: any) {
     Log("Backend", "ERROR", "api", `error fetching notifs: ${error.message}`);
     throw error;

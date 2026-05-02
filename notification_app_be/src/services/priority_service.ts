@@ -1,8 +1,12 @@
 import { Log } from "logging_middleware";
 import { fetchNotifications, NotificationItem } from "./api_service";
 
-interface PrioritizedNotification extends NotificationItem {
-  priorityScore: number;
+export interface PrioritizedNotification {
+  id: string;
+  type: string;
+  message: string;
+  timestamp: string;
+  score: number;
 }
 
 export const getPriorityInbox = async (topN: number = 10): Promise<PrioritizedNotification[]> => {
@@ -11,22 +15,28 @@ export const getPriorityInbox = async (topN: number = 10): Promise<PrioritizedNo
   const notifications = await fetchNotifications();
 
   const weights: Record<string, number> = {
-    "Placement": 300,
-    "Result": 200,
+    "Placement": 500,
+    "Result": 300,
     "Event": 100
   };
 
-  const prioritized = notifications.map(notif => {
-    const baseWeight = weights[notif.Type] || 0;
-    
-    const timeFactor = new Date(notif.Timestamp).getTime() / 10000000;
-    
-    const priorityScore = baseWeight + timeFactor;
-    return { ...notif, priorityScore };
+  const prioritized = notifications.map(item => {
+    const calculateScore = (type: string, time: string) => {
+      const base = weights[type as keyof typeof weights] || 0;
+      const recency = new Date(time).getTime() / 1000;
+      return base + (recency / 100000); 
+    };
+
+    return {
+      id: item.ID,
+      type: item.Type,
+      message: item.Message,
+      timestamp: item.Timestamp,
+      score: calculateScore(item.Type, item.Timestamp)
+    };
   });
 
-  // sort highest first
-  prioritized.sort((a, b) => b.priorityScore - a.priorityScore);
+  const sorted = prioritized.sort((a, b) => b.score - a.score);
 
-  return prioritized.slice(0, topN);
+  return sorted.slice(0, topN);
 };

@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
-// Import everything from the Bridge
 import { loadExpressKit, ExpressKitError } from "./config/expresskit.bridge";
 
 const app = express();

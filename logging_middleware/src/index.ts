@@ -20,7 +20,7 @@ export const Log = async (
   console.log(`[${timestamp}] ${color}[${level}]${resetColor} [${stack}] [${package_name}]: ${message}`);
 
   const token = process.env.ACCESS_TOKEN;
-  
+
   if (!token) {
     console.warn("\x1b[33m[Logger Warning]: ACCESS_TOKEN is missing. Logs will NOT be pushed to external API.\x1b[0m");
     return;
@@ -36,13 +36,11 @@ export const Log = async (
         message
       },
       {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
+        headers: { Authorization: `Bearer ${token}` },
+        timeout: 2000
       }
     );
   } catch (error: any) {
-    console.error("\x1b[31m[Logger Error]: Failed to push log to external API\x1b[0m", error.response?.data || error.message);
+
   }
 };

@@ -1,5 +1,5 @@
 export const ExpressKitConfig = {
-  routePrefix: "/api",
+  routePrefix: "/api/v1",
   defaultRouteMessage: "⚡ ExpressKit is alive",
   loadRoutesFrom: "src/routes",
 };

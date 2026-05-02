@@ -21,8 +21,7 @@ export const generateSchedule = async (): Promise<ScheduleResult[]> => {
   const results: ScheduleResult[] = [];
 
   for (const depot of depots) {
-    // grab vehicles for this specific depot (or unassigned ones)
-    const validVehicles = vehicles.filter(v => v.depotId === depot.id || !v.depotId);
+    const validVehicles = vehicles.filter(v => v.depotId === depot.ID || !v.depotId);
 
     const W = depot.MechanicHours;
     const n = validVehicles.length;
@@ -31,8 +30,8 @@ export const generateSchedule = async (): Promise<ScheduleResult[]> => {
     
     for (let i = 1; i <= n; i++) {
       const v = validVehicles[i - 1];
-      const weight = v.duration;
-      const value = v.impactScore;
+      const weight = v.Duration;
+      const value = v.Impact;
       
       for (let w = 0; w <= W; w++) {
         if (weight <= w) {
@@ -51,16 +50,16 @@ export const generateSchedule = async (): Promise<ScheduleResult[]> => {
       if (dp[i][w] !== dp[i - 1][w]) {
         const v = validVehicles[i - 1];
         tasks.push(v.TaskID);
-        hoursUsed += v.duration;
-        w -= v.duration;
+        hoursUsed += v.Duration;
+        w -= v.Duration;
       }
     }
     
     const score = dp[n][W];
-    Log("Backend", "INFO", "scheduler", `depot ${depot.id} done: score=${score}, hours=${hoursUsed}`);
+    Log("Backend", "INFO", "scheduler", `depot ${depot.ID} done: score=${score}, hours=${hoursUsed}`);
     
     results.push({
-      depotId: depot.id,
+      depotId: depot.ID,
       hoursUsed,
       score,
       tasks: tasks.reverse()

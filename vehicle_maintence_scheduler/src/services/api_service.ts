@@ -4,14 +4,14 @@ import { Log } from "logging_middleware";
 const BASE_URL = "http://20.207.122.201/evaluation-service";
 
 export interface Depot {
-  id: string;
+  ID: string;
   MechanicHours: number;
 }
 
 export interface Vehicle {
   TaskID: string;
-  duration: number;
-  impactScore: number;
+  Duration: number;
+  Impact: number;
   depotId?: string;
 }
 
@@ -22,9 +22,10 @@ export const fetchDepots = async (): Promise<Depot[]> => {
 
     Log("Backend", "INFO", "api", "fetching depots from api");
     const response = await axios.get(`${BASE_URL}/depots`, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
+      timeout: 5000
     });
-    return response.data;
+    return response.data.depots;
   } catch (error: any) {
     Log("Backend", "ERROR", "api", `failed to get depots: ${error.message}`);
     throw error;
@@ -38,9 +39,10 @@ export const fetchVehicles = async (): Promise<Vehicle[]> => {
 
     Log("Backend", "INFO", "api", "fetching vehicles...");
     const response = await axios.get(`${BASE_URL}/vehicles`, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
+      timeout: 5000
     });
-    return response.data;
+    return response.data.vehicles;
   } catch (error: any) {
     Log("Backend", "ERROR", "api", `failed to get vehicles: ${error.message}`);
     throw error;
